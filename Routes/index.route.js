@@ -4,6 +4,7 @@ const {
   studentRegister,
   instructorRegister,
   loginUser,
+  getUserProfile,
 } = require("../Controllers/user.controllers");
 const {
   createCourse,
@@ -20,6 +21,7 @@ const { createEnrollment } = require("../Controllers/enrollment.controllers");
 const { authCheck } = require("../Auth/index");
 const { roleMiddleware } = require("../Middleware/index");
 // User Routes
+router.get("/profile", authCheck, getUserProfile);
 // Student Routes
 router.post("/register", studentRegister);
 // Instructor Routes
@@ -29,7 +31,7 @@ router.post("/login", loginUser);
 // Course Routes
 router.post("/course", authCheck, roleMiddleware("instructor"), createCourse);
 router.get("/courses", authCheck, getCourses);
-router.get("/courses/:id", authCheck, getCourseById);
+router.get("/course/:id", authCheck, getCourseById);
 router.get("/my-courses", authCheck, getMyCourses);
 // Lesson Routes
 router.post(

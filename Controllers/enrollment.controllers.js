@@ -32,3 +32,13 @@ exports.createEnrollment = async (req, res) => {
     return res.status(500).json({ message: error.message });
   }
 };
+// export const getEnrollments = async (req, res) => {
+//   try {
+//     const enrollments = await Enrollment.find({ user: req.user.id }).populate(
+//       "course",
+//     );
+//     return res.status(200).json({ enrollments });
+//   } catch (error) {
+//     return res.status(500).json({ message: error.message });
+//   }
+// };

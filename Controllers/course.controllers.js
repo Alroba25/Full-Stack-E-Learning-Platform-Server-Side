@@ -3,10 +3,10 @@ const Enrollment = require("../Models/enrollment");
 exports.createCourse = async (req, res) => {
   try {
     const { title, description, price, isFree } = req.body;
-    if (!title || !description || !price) {
+    if (!title || !description || (!isFree && price === null)) {
       return res
         .status(400)
-        .json({ message: "Please provide Title , description and price" });
+        .json({ message: "Please provide title , description and price" });
     }
     const newCourse = new Course({
       title,

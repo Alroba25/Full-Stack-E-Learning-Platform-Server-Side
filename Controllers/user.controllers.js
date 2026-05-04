@@ -41,7 +41,7 @@ exports.studentRegister = async (req, res) => {
       },
       "secretKey",
       {
-        expiresIn: "1h",
+        expiresIn: "4d",
       },
     );
     return res.status(201).json({
@@ -92,7 +92,7 @@ exports.instructorRegister = async (req, res) => {
       },
       "secretKey",
       {
-        expiresIn: "1h",
+        expiresIn: "4d",
       },
     );
     return res.status(201).json({
@@ -138,7 +138,7 @@ exports.loginUser = async (req, res) => {
       },
       "secretKey",
       {
-        expiresIn: "1h",
+        expiresIn: "4d",
       },
     );
     return res.status(200).json({
@@ -146,6 +146,17 @@ exports.loginUser = async (req, res) => {
       user: { email, role: isUserExists.role, name: isUserExists.name },
       token,
     });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+exports.getUserProfile = async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id).select("-password");
+    if (!user) {
+      return res.status(404).json({ message: "User Not Found" });
+    }
+    return res.status(200).json({ user });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
