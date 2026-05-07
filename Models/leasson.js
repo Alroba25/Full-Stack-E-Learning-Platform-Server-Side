@@ -7,11 +7,11 @@ const lessonSchema = new mongoose.Schema(
       required: true,
     },
 
-    type: {
-      type: String,
-      enum: ["video", "text"],
-      required: true,
-    },
+    // type: {
+    //   type: String,
+    //   enum: ["video", "text"],
+    //   required: true,
+    // },
     videoUrl: {
       type: String,
       required: true,

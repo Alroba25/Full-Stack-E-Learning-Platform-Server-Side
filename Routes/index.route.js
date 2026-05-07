@@ -11,6 +11,9 @@ const {
   getCourses,
   getCourseById,
   getMyCourses,
+  getInstructorCourses,
+  deleteCourse,
+  getCourseStudents,
 } = require("../Controllers/course.controllers");
 const {
   createLesson,
@@ -25,7 +28,25 @@ router.get("/profile", authCheck, getUserProfile);
 // Student Routes
 router.post("/register", studentRegister);
 // Instructor Routes
-router.post("/register-instructor", instructorRegister);
+router.post("/register/instructor", instructorRegister);
+router.get(
+  "/instructor-courses",
+  authCheck,
+  roleMiddleware("instructor"),
+  getInstructorCourses,
+);
+router.delete(
+  "/instructor-course/:id",
+  authCheck,
+  roleMiddleware("instructor"),
+  deleteCourse,
+);
+router.get(
+  "/instructor-courses-users",
+  authCheck,
+  roleMiddleware("instructor"),
+  getCourseStudents,
+);
 // Login Routes
 router.post("/login", loginUser);
 // Course Routes

@@ -27,6 +27,10 @@ const courseSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
+    imageUrl: {
+      type: String,
+      required: true,
+    },
   },
   {
     timestamps: true,
