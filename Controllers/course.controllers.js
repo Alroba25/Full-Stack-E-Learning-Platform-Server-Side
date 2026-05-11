@@ -3,7 +3,16 @@ const Enrollment = require("../Models/enrollment");
 const Lesson = require("../Models/leasson");
 exports.createCourse = async (req, res) => {
   try {
-    const { title, description, price, isFree, lessons, imageUrl } = req.body;
+    const {
+      title,
+      description,
+      price,
+      isFree,
+      lessons,
+      imageUrl,
+      category,
+      level,
+    } = req.body;
     if (!title || !description || (!isFree && price === null)) {
       return res
         .status(400)
@@ -16,6 +25,8 @@ exports.createCourse = async (req, res) => {
       isFree: isFree ? true : false,
       instructor: req.user.id,
       imageUrl,
+      category,
+      level,
     });
     const newLessons = lessons.map((lesson) => ({
       ...lesson,
@@ -32,12 +43,51 @@ exports.createCourse = async (req, res) => {
 };
 exports.getCourses = async (req, res) => {
   try {
-    const courses = await Course.find()
+    const { category, level, rating, sort } = req.query;
+
+    let filter = {};
+
+    if (category) {
+      filter.category = {
+        $in: category.split(","),
+      };
+    }
+
+    if (level) {
+      filter.level = {
+        $in: level.split(","),
+      };
+    }
+
+    if (rating) {
+      filter.rating = {
+        $gte: Number(rating),
+      };
+    }
+
+    let sortOption = { createdAt: -1 };
+
+    if (sort === "price-low") {
+      sortOption = { price: 1 };
+    }
+
+    if (sort === "price-high") {
+      sortOption = { price: -1 };
+    }
+
+    if (sort === "rating") {
+      sortOption = { rating: -1 };
+    }
+
+    const courses = await Course.find(filter)
       .populate("instructor", "name")
-      .sort({ createdAt: -1 });
+      .sort(sortOption);
+
     return res.status(200).json({ courses });
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
 exports.getCourseById = async (req, res) => {
@@ -60,8 +110,16 @@ exports.getMyCourses = async (req, res) => {
     const enrollments = await Enrollment.find({
       user: req.user.id,
     })
-      .populate("course", "title price description instructor")
+      .populate({
+        path: "course",
+        populate: {
+          path: "instructor",
+          select: "name",
+        },
+      })
       .sort({ createdAt: -1 });
+    console.log(enrollments);
+
     return res.status(200).json({ enrollments });
   } catch (error) {
     return res.status(500).json({ message: error.message });

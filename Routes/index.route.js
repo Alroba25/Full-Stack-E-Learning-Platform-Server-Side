@@ -23,6 +23,7 @@ const {
 const { createEnrollment } = require("../Controllers/enrollment.controllers");
 const { authCheck } = require("../Auth/index");
 const { roleMiddleware } = require("../Middleware/index");
+const { chatWithAI } = require("../Controllers/ai.controllers");
 // User Routes
 router.get("/profile", authCheck, getUserProfile);
 // Student Routes
@@ -76,4 +77,6 @@ router.post(
 );
 //Get Course Lessons
 router.get("/course/:courseId/lessons", authCheck, getLessons);
+// AI Chat Route
+router.post("/ai/chat", authCheck, chatWithAI);
 module.exports = router;
