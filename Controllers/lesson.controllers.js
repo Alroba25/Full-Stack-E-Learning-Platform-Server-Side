@@ -1,9 +1,11 @@
 const Lesson = require("../Models/leasson");
 const Course = require("../Models/course");
 const Enrollment = require("../Models/enrollment");
+
 exports.createLesson = async (req, res) => {
   try {
     const { title, type, videoUrl, content, order } = req.body;
+    console.log("Request Body:", req.body);
     if (!title || !type || (!videoUrl && !content) || !order) {
       return res.status(400).json({
         message: "Please provide title, type, order and (videoUrl or content)",

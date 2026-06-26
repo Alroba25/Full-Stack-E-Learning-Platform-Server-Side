@@ -31,6 +31,10 @@ const lessonSchema = new mongoose.Schema(
       type: Number,
       required: true,
     },
+    duration: {
+      type: String,
+      default: "00:00",
+    },
   },
   {
     timestamps: true,

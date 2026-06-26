@@ -10,7 +10,6 @@ const authCheck = (req, res, next) => {
     req.user = decodedToken;
     next();
   } catch (error) {
-    console.error("AuthCheck Error:", error);
     return res.status(500).json({ message: error.message });
   }
 };

@@ -1,6 +1,41 @@
 const Course = require("../Models/course");
 const Enrollment = require("../Models/enrollment");
 const Lesson = require("../Models/leasson");
+const axios = require("axios");
+const getVideoId = (url) => {
+  const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/;
+
+  return url.match(regex)?.[1];
+};
+const getYoutubeDuration = async (videoId) => {
+  const response = await axios.get(
+    "https://www.googleapis.com/youtube/v3/videos",
+    {
+      params: {
+        part: "contentDetails",
+        id: videoId,
+        key: process.env.YOUTUBE_API_KEY,
+      },
+    },
+  );
+
+  return response.data.items[0].contentDetails.duration;
+};
+const formatDuration = (isoDuration) => {
+  const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+
+  const hours = match[1] || 0;
+  const minutes = match[2] || 0;
+  const seconds = match[3] || 0;
+
+  if (hours > 0) {
+    return `${hours}:${minutes.toString().padStart(2, "0")}:${seconds
+      .toString()
+      .padStart(2, "0")}`;
+  }
+
+  return `${minutes}:${seconds.toString().padStart(2, "0")}`;
+};
 exports.createCourse = async (req, res) => {
   try {
     const {
@@ -27,11 +62,21 @@ exports.createCourse = async (req, res) => {
       imageUrl,
       category,
       level,
+      lessonsCount: lessons.length,
     });
-    const newLessons = lessons.map((lesson) => ({
-      ...lesson,
-      course: newCourse._id,
-    }));
+    const newLessons = await Promise.all(
+      lessons.map(async (lesson) => {
+        const videoId = getVideoId(lesson.videoUrl);
+
+        const youtubeDuration = await getYoutubeDuration(videoId);
+
+        return {
+          ...lesson,
+          duration: formatDuration(youtubeDuration),
+          course: newCourse._id,
+        };
+      }),
+    );
     await Lesson.insertMany(newLessons);
     await newCourse.save();
     return res
@@ -161,5 +206,30 @@ exports.getCourseStudents = async (req, res) => {
     return res.status(500).json({
       message: error.message,
     });
+  }
+};
+exports.getCourseByAdmin = async (req, res) => {
+  try {
+    const courses = await Course.find().populate("instructor", "name");
+    return res.status(200).json({ courses });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+exports.deleteCourseByAdmin = async (req, res) => {
+  try {
+    const { id } = req.params;
+    if (!id) {
+      return res.status(400).json({ message: "Please provide course id" });
+    }
+    const course = await Course.findByIdAndDelete(id);
+    if (!course) {
+      return res.status(404).json({ message: "Course not found" });
+    }
+    return res.status(200).json({ message: "Course deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
   }
 };

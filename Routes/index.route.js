@@ -5,6 +5,9 @@ const {
   instructorRegister,
   loginUser,
   getUserProfile,
+  getAllUsersByAdmin,
+  toggleAdmin,
+  deleteUserByAdmin,
 } = require("../Controllers/user.controllers");
 const {
   createCourse,
@@ -14,16 +17,29 @@ const {
   getInstructorCourses,
   deleteCourse,
   getCourseStudents,
+  getCourseByAdmin,
+  deleteCourseByAdmin,
 } = require("../Controllers/course.controllers");
 const {
   createLesson,
   getLessons,
   markLessonCompleted,
 } = require("../Controllers/lesson.controllers");
+const {
+  createPayment,
+  getStudentPayments,
+  getAdminOrders,
+  approvePayment,
+  rejectPayment,
+} = require("../Controllers/payment.controllers");
 const { createEnrollment } = require("../Controllers/enrollment.controllers");
 const { authCheck } = require("../Auth/index");
 const { roleMiddleware } = require("../Middleware/index");
-const { chatWithAI } = require("../Controllers/ai.controllers");
+const {
+  chatWithAI,
+  getChatHistory,
+  clearChatHistory,
+} = require("../Controllers/ai.controllers");
 // User Routes
 router.get("/profile", authCheck, getUserProfile);
 // Student Routes
@@ -79,4 +95,63 @@ router.post(
 router.get("/course/:courseId/lessons", authCheck, getLessons);
 // AI Chat Route
 router.post("/ai/chat", authCheck, chatWithAI);
+router.get("/ai/history", authCheck, getChatHistory);
+router.delete("/ai/history", authCheck, clearChatHistory);
+// Payment Routes
+router.post("/payment", authCheck, roleMiddleware("student"), createPayment);
+router.get(
+  "/my-orders",
+  authCheck,
+  roleMiddleware("student"),
+  getStudentPayments,
+);
+// Admin Routes
+router.get(
+  "/admin/payments",
+  authCheck,
+  roleMiddleware("admin"),
+  getAdminOrders,
+);
+router.patch(
+  "/admin/payments/:paymentId/approve",
+  authCheck,
+  roleMiddleware("admin"),
+  approvePayment,
+);
+router.patch(
+  "/admin/payments/:paymentId/reject",
+  authCheck,
+  roleMiddleware("admin"),
+  rejectPayment,
+);
+router.get(
+  "/admin/courses",
+  authCheck,
+  roleMiddleware("admin"),
+  getCourseByAdmin,
+);
+router.delete(
+  "/admin/courses/:id",
+  authCheck,
+  roleMiddleware("admin"),
+  deleteCourseByAdmin,
+);
+router.get(
+  "/admin/users",
+  authCheck,
+  roleMiddleware("admin"),
+  getAllUsersByAdmin,
+);
+router.patch(
+  "/admin/users/:userId/toggle-admin",
+  authCheck,
+  roleMiddleware("admin"),
+  toggleAdmin,
+);
+router.delete(
+  "/admin/users/:userId",
+  authCheck,
+  roleMiddleware("admin"),
+  deleteUserByAdmin,
+);
 module.exports = router;

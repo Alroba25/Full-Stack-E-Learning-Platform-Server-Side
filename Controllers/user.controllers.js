@@ -127,7 +127,7 @@ exports.loginUser = async (req, res) => {
     }
     const isMatch = await bcrypt.compare(password, isUserExists.password);
     if (!isMatch) {
-      return res.status(401).json({ message: "Invalid Password" });
+      return res.status(401).json({ message: "Invalid Password & Email" });
     }
     const token = jwt.sign(
       {
@@ -157,6 +157,60 @@ exports.getUserProfile = async (req, res) => {
       return res.status(404).json({ message: "User Not Found" });
     }
     return res.status(200).json({ user });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+exports.getAllUsersByAdmin = async (req, res) => {
+  try {
+    const users = await User.find().select("-password");
+    return res.status(200).json({ users });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+exports.toggleAdmin = async (req, res) => {
+  try {
+    const { userId } = req.params;
+
+    const user = await User.findById(userId);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+    if (user._id.toString() === req.user.id) {
+      return res.status(400).json({
+        message: "You cannot change your own admin role",
+      });
+    }
+    user.role = user.role === "admin" ? "student" : "admin";
+
+    await user.save();
+
+    return res.status(200).json({
+      success: true,
+      message:
+        user.role === "admin"
+          ? "User promoted to admin successfully"
+          : "Admin removed successfully",
+      user,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+exports.deleteUserByAdmin = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const user = await User.findByIdAndDelete(userId);
+    if (!user) {
+      return res.status(404).json({ message: "User Not Found" });
+    }
+    return res.status(200).json({ message: "User deleted successfully" });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
