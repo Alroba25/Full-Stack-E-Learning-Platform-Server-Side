@@ -19,6 +19,7 @@ const {
   getCourseStudents,
   getCourseByAdmin,
   deleteCourseByAdmin,
+  getThreeCoursesForHomePage,
 } = require("../Controllers/course.controllers");
 const {
   createLesson,
@@ -35,6 +36,10 @@ const {
 const { createEnrollment } = require("../Controllers/enrollment.controllers");
 const { authCheck } = require("../Auth/index");
 const { roleMiddleware } = require("../Middleware/index");
+const {
+  markAllNotificationsAsRead,
+  getNotifications,
+} = require("../Controllers/notification.controllers");
 const {
   chatWithAI,
   getChatHistory,
@@ -71,6 +76,7 @@ router.post("/course", authCheck, roleMiddleware("instructor"), createCourse);
 router.get("/courses", authCheck, getCourses);
 router.get("/course/:id", authCheck, getCourseById);
 router.get("/my-courses", authCheck, getMyCourses);
+router.get("/home-courses", getThreeCoursesForHomePage);
 // Lesson Routes
 router.post(
   "/course/:courseId/lessons",
@@ -85,12 +91,7 @@ router.patch(
   markLessonCompleted,
 );
 //Student Enrollment Routes
-router.post(
-  "/enroll/:courseId",
-  authCheck,
-  roleMiddleware("student"),
-  createEnrollment,
-);
+router.post("/enroll/:courseId", authCheck, createEnrollment);
 //Get Course Lessons
 router.get("/course/:courseId/lessons", authCheck, getLessons);
 // AI Chat Route
@@ -98,13 +99,8 @@ router.post("/ai/chat", authCheck, chatWithAI);
 router.get("/ai/history", authCheck, getChatHistory);
 router.delete("/ai/history", authCheck, clearChatHistory);
 // Payment Routes
-router.post("/payment", authCheck, roleMiddleware("student"), createPayment);
-router.get(
-  "/my-orders",
-  authCheck,
-  roleMiddleware("student"),
-  getStudentPayments,
-);
+router.post("/payment", authCheck, createPayment);
+router.get("/my-orders", authCheck, getStudentPayments);
 // Admin Routes
 router.get(
   "/admin/payments",
@@ -154,4 +150,7 @@ router.delete(
   roleMiddleware("admin"),
   deleteUserByAdmin,
 );
+// Notification Routes
+router.patch("/notifications/read-all", authCheck, markAllNotificationsAsRead);
+router.get("/notifications", authCheck, getNotifications);
 module.exports = router;

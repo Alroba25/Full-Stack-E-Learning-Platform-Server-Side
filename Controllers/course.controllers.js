@@ -1,6 +1,7 @@
 const Course = require("../Models/course");
 const Enrollment = require("../Models/enrollment");
 const Lesson = require("../Models/leasson");
+const Payment = require("../Models/payment");
 const axios = require("axios");
 const getVideoId = (url) => {
   const regex = /(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/;
@@ -145,7 +146,20 @@ exports.getCourseById = async (req, res) => {
     if (!course) {
       return res.status(404).json({ message: "Course not found" });
     }
-    return res.status(200).json({ course });
+    let paymentStatus = null;
+    if (req.user) {
+      const payment = await Payment.findOne({
+        student: req.user.id,
+        course: course._id,
+        status: "pending",
+      });
+
+      paymentStatus = payment?.status || null;
+    }
+    return res.status(200).json({
+      course,
+      paymentStatus,
+    });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
@@ -163,8 +177,6 @@ exports.getMyCourses = async (req, res) => {
         },
       })
       .sort({ createdAt: -1 });
-    console.log(enrollments);
-
     return res.status(200).json({ enrollments });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -229,6 +241,14 @@ exports.deleteCourseByAdmin = async (req, res) => {
       return res.status(404).json({ message: "Course not found" });
     }
     return res.status(200).json({ message: "Course deleted successfully" });
+  } catch (error) {
+    return res.status(500).json({ message: error.message });
+  }
+};
+exports.getThreeCoursesForHomePage = async (req, res) => {
+  try {
+    const courses = await Course.find().limit(3).sort({ createdAt: -1 });
+    return res.status(200).json({ courses });
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
