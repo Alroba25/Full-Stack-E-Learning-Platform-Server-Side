@@ -44,10 +44,15 @@ exports.studentRegister = async (req, res) => {
         expiresIn: "4d",
       },
     );
-    return res.status(201).json({
-      message: "User registered successfully",
-      user: { name, email, role: newUser.role },
-      token,
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({
+      message: "Registered successfully",
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -95,10 +100,15 @@ exports.instructorRegister = async (req, res) => {
         expiresIn: "4d",
       },
     );
-    return res.status(201).json({
-      message: "instructor registered successfully",
-      user: { name, email, role: newUser.role },
-      token,
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({
+      message: "Instructor registered successfully",
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -141,10 +151,15 @@ exports.loginUser = async (req, res) => {
         expiresIn: "4d",
       },
     );
-    return res.status(200).json({
-      message: "User Logged in successfully",
-      user: { email, role: isUserExists.role, name: isUserExists.name },
-      token,
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.json({
+      message: "Login Success",
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });

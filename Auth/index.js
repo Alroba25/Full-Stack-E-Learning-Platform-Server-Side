@@ -2,21 +2,29 @@ const jwt = require("jsonwebtoken");
 
 const authCheck = (req, res, next) => {
   try {
-    const token = req.headers?.authorization?.split(" ")[1];
+    const token = req.cookies.token;
+
     if (!token) {
-      return res.status(401).json({ message: "Unauthorized" });
+      return res.status(401).json({
+        message: "Unauthorized",
+      });
     }
+
     const decodedToken = jwt.verify(token, "secretKey");
+
     req.user = decodedToken;
+
     next();
   } catch (error) {
-    return res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
 
 const adminAuth = (req, res, next) => {
   try {
-    const token = req.headers?.authorization?.split(" ")[1];
+    const token = req.cookies.token;
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }

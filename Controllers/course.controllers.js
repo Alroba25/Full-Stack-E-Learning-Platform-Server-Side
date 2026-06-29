@@ -20,6 +20,9 @@ const getYoutubeDuration = async (videoId) => {
     },
   );
 
+  console.log(videoId);
+  console.log(response.data);
+
   return response.data.items[0].contentDetails.duration;
 };
 const formatDuration = (isoDuration) => {
