@@ -1,6 +1,9 @@
 const jwt = require("jsonwebtoken");
 
 const authCheck = (req, res, next) => {
+  console.log("Cookies =>", req.cookies);
+  console.log("Token =>", req.cookies.token);
+
   try {
     const token = req.cookies.token;
 
@@ -16,6 +19,8 @@ const authCheck = (req, res, next) => {
 
     next();
   } catch (error) {
+    console.log(error);
+
     return res.status(500).json({
       message: error.message,
     });

@@ -8,6 +8,7 @@ const {
   getAllUsersByAdmin,
   toggleAdmin,
   deleteUserByAdmin,
+  logoutUser,
 } = require("../Controllers/user.controllers");
 const {
   createCourse,
@@ -71,6 +72,8 @@ router.get(
 );
 // Login Routes
 router.post("/login", loginUser);
+//Logut Route
+router.post("/logout", authCheck, logoutUser);
 // Course Routes
 router.post("/course", authCheck, roleMiddleware("instructor"), createCourse);
 router.get("/courses", authCheck, getCourses);

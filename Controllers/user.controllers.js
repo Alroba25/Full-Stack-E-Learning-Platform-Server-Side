@@ -157,7 +157,7 @@ exports.loginUser = async (req, res) => {
       sameSite: "lax",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-
+    console.log("NODE_ENV =", process.env.NODE_ENV);
     return res.json({
       message: "Login Success",
     });
@@ -229,4 +229,15 @@ exports.deleteUserByAdmin = async (req, res) => {
   } catch (error) {
     return res.status(500).json({ message: error.message });
   }
+};
+exports.logoutUser = (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+  });
+
+  return res.status(200).json({
+    message: "Logged out successfully",
+  });
 };
