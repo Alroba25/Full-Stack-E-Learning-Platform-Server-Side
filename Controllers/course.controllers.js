@@ -9,21 +9,27 @@ const getVideoId = (url) => {
   return url.match(regex)?.[1];
 };
 const getYoutubeDuration = async (videoId) => {
-  const response = await axios.get(
-    "https://www.googleapis.com/youtube/v3/videos",
-    {
-      params: {
-        part: "contentDetails",
-        id: videoId,
-        key: process.env.YOUTUBE_API_KEY,
+  if (!videoId) return "PT0M0S";
+  try {
+    const response = await axios.get(
+      "https://www.googleapis.com/youtube/v3/videos",
+      {
+        params: {
+          part: "contentDetails",
+          id: videoId,
+          key: process.env.YOUTUBE_API_KEY,
+        },
       },
-    },
-  );
+    );
 
-  console.log(videoId);
-  console.log(response.data);
-
-  return response.data.items[0].contentDetails.duration;
+    if (response.data.items && response.data.items.length > 0) {
+      return response.data.items[0].contentDetails.duration;
+    }
+    return "PT0M0S";
+  } catch (error) {
+    console.error("YouTube API Error:", error.message);
+    return "PT0M0S";
+  }
 };
 const formatDuration = (isoDuration) => {
   const match = isoDuration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
