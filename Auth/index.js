@@ -5,7 +5,7 @@ const authCheck = (req, res, next) => {
   console.log("Token =>", req.cookies.token);
 
   try {
-    const token = req.headers.authorization?.split(" ")[1] || req.cookies.token;
+    const token = req.cookies.token;
 
     if (!token) {
       return res.status(401).json({
@@ -29,7 +29,7 @@ const authCheck = (req, res, next) => {
 
 const adminAuth = (req, res, next) => {
   try {
-    const token = req.headers.authorization?.split(" ")[1] || req.cookies.token;
+    const token = req.cookies.token;
     if (!token) {
       return res.status(401).json({ message: "Unauthorized" });
     }
