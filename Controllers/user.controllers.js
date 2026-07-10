@@ -53,6 +53,7 @@ exports.studentRegister = async (req, res) => {
 
     return res.json({
       message: "Registered successfully",
+      token,
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -109,6 +110,7 @@ exports.instructorRegister = async (req, res) => {
 
     return res.json({
       message: "Instructor registered successfully",
+      token,
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
@@ -160,6 +162,7 @@ exports.loginUser = async (req, res) => {
     console.log("NODE_ENV =", process.env.NODE_ENV);
     return res.json({
       message: "Login Success",
+      token,
     });
   } catch (error) {
     return res.status(500).json({ message: error.message });
